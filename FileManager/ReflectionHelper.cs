@@ -1,4 +1,5 @@
-﻿using Microsoft.CSharp;
+﻿using HidromasOzel;
+using Microsoft.CSharp;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace FileManager
 {
@@ -55,6 +57,66 @@ namespace FileManager
             //--------------------
             // Return the created class instance to caller
             return results.CompiledAssembly.CreateInstance(mainClass); ;
+        }
+
+        public static List<object> FunctionExec(string filename)
+        {
+            List<object> arguman = new List<object>();
+            string koddosyasi = Application.StartupPath + "\\FileParser.xcs";
+            if (File.Exists(koddosyasi))
+            {
+                string code = "";
+                using (StreamReader reader = new StreamReader(new FileStream(koddosyasi, FileMode.Open, FileAccess.Read, FileShare.Read), Encoding.GetEncoding("windows-1254")))
+                {
+                    code = reader.ReadToEnd().Trim();
+                }
+                Object[] requiredAssemblies = new Object[] { };
+                dynamic classRef;
+                try
+                {
+                    classRef = ReflectionHelper.FunctionExec(code, "HidromasOzel.FileParser", requiredAssemblies);
+
+                    //-------------------
+                    // If the compilation process returned an error, then show to the user all errors
+                    if (classRef is CompilerErrorCollection)
+                    {
+                        StringBuilder sberror = new StringBuilder();
+
+                        foreach (CompilerError error in (CompilerErrorCollection)classRef)
+                        {
+                            sberror.AppendLine(string.Format("{0}:{1} {2} {3}", error.Line, error.Column, error.ErrorNumber, error.ErrorText));
+                        }
+
+                        Logger.V(sberror.ToString());
+
+                        return arguman;
+                    }
+
+                    arguman = classRef.DosyaTuru(Path.GetFileNameWithoutExtension(filename), AppSettingHelper.GetConnectionString());
+                }
+                catch (Exception ex)
+                {
+                    // If something very bad happened then throw it
+                    //MessageBox.Show(ex.Message);
+                    Logger.E(string.Concat("Prosedür yürütme hatasi:", ex.Message, ",Detay:", ex.StackTrace));
+                    return arguman;
+                }
+            }
+            else
+            {
+
+                using (StreamWriter wr = new StreamWriter(new FileStream(koddosyasi, FileMode.Create, FileAccess.Write, FileShare.Write), Encoding.GetEncoding("windows-1254")))
+                {
+                    wr.Write(ReflectionHelper.DosyaIcerik("FileManager.FileParser.xcs"));
+                    wr.Flush();
+                    wr.Close();
+                }
+
+                //FileParser ozel = new FileParser();
+                //ozel.DosyaTuru(Path.GetFileNameWithoutExtension(filename), AppSettingHelper.GetConnectionString());
+            }
+
+            return arguman;
         }
 
         public static string[] Dosyalar()

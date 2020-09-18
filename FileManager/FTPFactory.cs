@@ -315,7 +315,7 @@ namespace FileManager
         ///
         /// Login to the remote server.
         ///
-        public void login()
+        public bool login()
         {
             if (!IPAddress.TryParse(remoteHost, out ip))
                 ip = Dns.GetHostEntry(remoteHost).AddressList[0];
@@ -334,7 +334,8 @@ namespace FileManager
             catch (Exception ex)
             {
                 Logger.E(ex);
-                return;
+                logined = false;
+                return false;
                 //throw new IOException("Sunucu Bağlantısı Sağlanamadı");
                 //MessageBox.Show(ex.Message);
             }
@@ -344,7 +345,8 @@ namespace FileManager
             {
                 close();
                 Logger.E(reply);
-                return;
+                logined = false;
+                return false;
                 //throw new IOException(reply.Substring(4));
             }
             //if (debug)
@@ -356,7 +358,8 @@ namespace FileManager
             {
                 cleanup();
                 Logger.E(reply);
-                return;
+                logined = false;
+                return false;
                 //throw new IOException(reply.Substring(4));
             }
 
@@ -370,7 +373,8 @@ namespace FileManager
                 {
                     cleanup();
                     Logger.E(reply);
-                    return;
+                    logined = false;
+                    return false;
                     //throw new IOException(reply.Substring(4));
                 }
             }
@@ -379,6 +383,8 @@ namespace FileManager
             //durumgosterge.Text = ("Baglanilan sunucu " + remoteHost);
 
             chdir(remotePath);
+
+            return true;
 
         }
 
@@ -553,9 +559,9 @@ namespace FileManager
         /// Upload a file.
         ///
         ///
-        public void upload(string fileName)
+        public bool upload(string fileName)
         {
-            upload(fileName, false);
+          return  upload(fileName, false);
         }
 
         ///
@@ -563,17 +569,17 @@ namespace FileManager
         ///
         ///
         ///
-        public void upload(string fileName, Boolean resume)
+        public bool upload(string fileName, Boolean resume)
         {
             if (!File.Exists(fileName))
             {
                 Logger.E("Kaynak dosya bulunamadı! " + fileName);
-                return;
+                return false;
             }
 
-            if (!logined)
+            if (!logined && !login())
             {
-                login();
+                return false;
             }
             long offset = 0;
 
@@ -595,11 +601,11 @@ namespace FileManager
 
             if (offset > 0)
             {
-
                 sendCommand("REST " + offset);
                 if (retValue != 350)
                 {
                     Logger.E(reply);
+                    return false;
                     //throw new IOException(reply.Substring(4));
                     //Remote server may not support resuming.
                     offset = 0;
@@ -611,7 +617,7 @@ namespace FileManager
             if (!(retValue == 125 || retValue == 150))
             {
                 Logger.E(reply);
-                return;
+                return false;
                 //throw new IOException(reply.Substring(4));
             }
 
@@ -648,6 +654,8 @@ namespace FileManager
                 Logger.E(reply);
                 //throw new IOException(reply.Substring(4));
             }
+
+            return true;
         }
 
         ///
@@ -867,11 +875,22 @@ namespace FileManager
 
         private void sendCommand(String command)
         {
-            //Logger.I("FTP komut ..:", command);
-            Byte[] cmdBytes =
-                Encoding.ASCII.GetBytes((command + "\r\n").ToCharArray());
-            clientSocket.Send(cmdBytes, cmdBytes.Length, 0);
-            readReply();
+            try
+            {
+                //Logger.I("FTP komut ..:", command);
+                Byte[] cmdBytes =
+                    Encoding.ASCII.GetBytes((command + "\r\n").ToCharArray());
+                clientSocket.Send(cmdBytes, cmdBytes.Length, 0);
+                readReply();
+            }
+            catch (IOException ioexc)
+            {
+                Logger.E(string.Concat("Komut gönderilemedi: ", ioexc.Message, ",Detay:", ioexc.StackTrace));
+            }
+            catch (Exception exc)
+            {
+                Logger.E(string.Concat("Komut gönderilemedi: ",exc.Message,",Detay:",exc.StackTrace));
+            }
         }
 
         private Socket createDataSocket()

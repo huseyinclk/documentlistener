@@ -19,7 +19,7 @@ namespace FileManager
         {
             InitializeComponent();
         }
-        string koddosyasi = Application.StartupPath + "\\HidromasOzel.txt";
+        string koddosyasi = Application.StartupPath + "\\FileParser.xcs";
         private void fctb_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (e.X < fctb.LeftIndent)
@@ -48,7 +48,7 @@ namespace FileManager
 
                 using (StreamWriter wr = new StreamWriter(new FileStream(koddosyasi, FileMode.Create, FileAccess.Write, FileShare.Write), Encoding.GetEncoding("windows-1254")))
                 {
-                    code = ReflectionHelper.DosyaIcerik("FileManager.HidromasOzel.txt");
+                    code = ReflectionHelper.DosyaIcerik("FileManager.FileParser.xcs");
                     wr.Write(code);
                     wr.Flush();
                     wr.Close();
@@ -80,7 +80,7 @@ namespace FileManager
             dynamic classRef;
             try
             {
-                classRef = ReflectionHelper.FunctionExec(fctb.Text, "HidromasOzel.HidromasDosya", requiredAssemblies);
+                classRef = ReflectionHelper.FunctionExec(fctb.Text, "HidromasOzel.FileParser", requiredAssemblies);
 
                 //-------------------
                 // If the compilation process returned an error, then show to the user all errors

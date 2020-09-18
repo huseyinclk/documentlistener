@@ -60,6 +60,10 @@ namespace FileManager
         [Description("Bilgilendirme maili gönderildi.")]
         public bool IsMailSend { get; set; }
 
+        [Persistent("IS_DELETE")]
+        [Description("Kaynak dosya silindi.")]
+        public bool IsDelete { get; set; }
+
         [Persistent("MAIL_MSG")]
         [Size(SizeAttribute.Unlimited)]
         [Description("Mail gönderilezse hata mesajı.")]

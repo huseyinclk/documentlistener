@@ -22,6 +22,12 @@ namespace FileManager
             }
         }
 
+
+        public static string GetConnectionString()
+        {
+            return string.Format("Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST={0})(PORT={1})))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME={2})));User Id=uyumsoft;Password=uyumsoft;", AppSettingHelper.Default.orahost, AppSettingHelper.Default.oraport, AppSettingHelper.Default.oraservis);
+        }
+
         const string SETTING_FILE_NAME = "config.dat";
 
         [DllImport("kernel32")]

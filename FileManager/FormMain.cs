@@ -41,7 +41,7 @@ namespace FileManager
 
                 var topFiles = (from q in new XPQuery<PdfFileInfo>(XpoDefault.Session)
                                 orderby q.Oid descending
-                                select new { q.Oid, q.Name, q.Length, q.UploadMsg, q.MailMsg, q.CreationTime, q.Aktarim }).Take(100).ToList();
+                                select new { q.Oid, q.Name, q.Length, q.UploadMsg, q.MailMsg, q.IsDelete, q.CreationTime, q.Aktarim }).Take(100).ToList();
 
                 if (topFiles != null && topFiles.Count > 0)
                 {
@@ -52,6 +52,7 @@ namespace FileManager
                         item.Text = f.Oid.ToString();
                         item.SubItems.Add(f.Name);
                         item.SubItems.Add(f.Length.ToString());
+                        item.SubItems.Add(f.IsDelete ? "√" : "-");
                         item.SubItems.Add(f.CreationTime.ToString());
                         item.SubItems.Add(f.UploadMsg);
                         item.SubItems.Add(f.MailMsg);
@@ -170,116 +171,22 @@ namespace FileManager
                 allfiles.TopReturnedObjects = 100;
                 if (allfiles.Count > 0)
                 {
-                    string oraconstr = string.Format("Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST={0})(PORT={1})))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME={2})));User Id=uyumsoft;Password=uyumsoft;", AppSettingHelper.Default.orahost, AppSettingHelper.Default.oraport, AppSettingHelper.Default.oraservis);
                     FTPFactory ftp = FTPFactory.NewInstince();
                     Logger.I(allfiles.Count + " adet dosya aktarılacak.");
                     using (OraHelper ora = new OraHelper())
                     {
                         foreach (PdfFileInfo f in allfiles)
                         {
-                            int relationId = 0;
                             object objIds = null;
-                            int relationObject = 0;
-
                             if (f.FileType == PdfFileType.Bilinmiyor)
                             {
-                                List<object> arguman = new List<object>();
-                                string koddosyasi = Application.StartupPath + "\\FileParser.xcs";
-                                if (File.Exists(koddosyasi))
-                                {
-                                    string code = "";
-                                    using (StreamReader reader = new StreamReader(new FileStream(koddosyasi, FileMode.Open, FileAccess.Read, FileShare.Read), Encoding.GetEncoding("windows-1254")))
-                                    {
-                                        code = reader.ReadToEnd().Trim();
-                                    }
-                                    Object[] requiredAssemblies = new Object[] { };
-                                    dynamic classRef;
-                                    try
-                                    {
-                                        classRef = ReflectionHelper.FunctionExec(code, "HidromasOzel.FileParser", requiredAssemblies);
-
-                                        //-------------------
-                                        // If the compilation process returned an error, then show to the user all errors
-                                        if (classRef is CompilerErrorCollection)
-                                        {
-                                            StringBuilder sberror = new StringBuilder();
-
-                                            foreach (CompilerError error in (CompilerErrorCollection)classRef)
-                                            {
-                                                sberror.AppendLine(string.Format("{0}:{1} {2} {3}", error.Line, error.Column, error.ErrorNumber, error.ErrorText));
-                                            }
-
-                                            Logger.V(sberror.ToString());
-
-                                            return;
-                                        }
-
-                                        arguman = classRef.DosyaTuru(Path.GetFileNameWithoutExtension(f.FullName), oraconstr);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        // If something very bad happened then throw it
-                                        //MessageBox.Show(ex.Message);
-                                        Logger.E(string.Concat("Prosedür yürütme hatasi:", ex.Message, ",Detay:", ex.StackTrace));
-                                        continue;
-                                    }
-                                }
-                                else
-                                {
-
-                                    using (StreamWriter wr = new StreamWriter(new FileStream(koddosyasi, FileMode.Create, FileAccess.Write, FileShare.Write), Encoding.GetEncoding("windows-1254")))
-                                    {
-                                        wr.Write(ReflectionHelper.DosyaIcerik("FileManager.FileParser.xcs"));
-                                        wr.Flush();
-                                        wr.Close();
-                                    }
-
-                                    FileParser ozel = new FileParser();
-                                    arguman = ozel.DosyaTuru(Path.GetFileNameWithoutExtension(f.FullName), oraconstr);
-                                }
-                                if (arguman != null)
-                                {
-                                    if (arguman.Count > 3)
-                                    {
-                                        if (Convert.ToInt32(arguman[3]) == 0)
-                                        {
-                                            f.FileType = PdfFileType.Bilinmiyor;
-                                        }
-                                        else if (Convert.ToInt32(arguman[3]) == 1)
-                                        {
-                                            f.FileType = PdfFileType.UrunAgacKod;
-                                        }
-                                        else if (Convert.ToInt32(arguman[3]) == 2)
-                                        {
-                                            f.FileType = PdfFileType.RotaKod;
-                                        }
-                                        else if (Convert.ToInt32(arguman[3]) == 3)
-                                        {
-                                            f.FileType = PdfFileType.IstasyonKod;
-                                        }
-                                        else if (Convert.ToInt32(arguman[3]) == 4)
-                                        {
-                                            f.FileType = PdfFileType.StokKod;
-                                        }
-                                        else
-                                        {
-                                            f.FileType = PdfFileType.Diger;
-                                        }
-                                    }
-                                    if (arguman.Count > 0)
-                                    {
-                                        relationId = Convert.ToInt32(arguman[0]);
-                                    }
-                                    if (arguman.Count > 2)
-                                    {
-                                        relationObject = Convert.ToInt32(arguman[2]);
-                                    }
-                                    f.RelationId = relationId;
-                                    f.RelationObject = relationObject;
-                                }
+                                FileParser ozel = new FileParser(Path.GetFileNameWithoutExtension(f.FullName), AppSettingHelper.GetConnectionString());
+                                f.FileType = ozel.FileType;
+                                f.RelationId = ozel.RelationId;
+                                f.RelationObject = ozel.RelationObject;
                             }
 
-                            if (f.FileType == PdfFileType.Bilinmiyor)
+                            if (f.FileType == PdfFileType.Bilinmiyor || f.FileType == PdfFileType.Diger)
                             {
                                 Logger.I("Dosya hatalı! Eksik parametre:" + f.Name);
                                 f.UploadMsg = "Dosya türü bilinmiyor:" + f.Name;
@@ -354,7 +261,7 @@ namespace FileManager
 
                             #endregion
 
-                            if (relationId > 0)
+                            if (f.RelationId > 0)
                             {
                                 try
                                 {
@@ -367,7 +274,14 @@ namespace FileManager
                                     //if (size > 0)
                                     //    ftp.deleteRemoteFile(f.Name);
 
-                                    ftp.upload(f.FullName);
+                                    if (!ftp.upload(f.FullName))
+                                    {
+                                        Logger.I("Dosya klasore kopyalanamadı:" + f.FullName);
+                                        f.UploadMsg = "Dosya klasore kopyalanamadı";
+                                        f.Aktarim = AktarimDurumu.Kopyalanamadi;
+                                        f.Save();
+                                        continue;
+                                    }
 
                                     //try
                                     //{
@@ -385,7 +299,7 @@ namespace FileManager
                                 }
                                 catch (IOException io)
                                 {
-                                    Logger.I("Dosya klasore kopyalanamadı:" + io.Message);
+                                    Logger.I("Dosya klasore kopyalanamadı:" + io.Message + ",detay" + io.StackTrace);
                                     f.UploadMsg = "Dosya klasore kopyalanamadı:" + io.Message;
                                     f.Aktarim = AktarimDurumu.Kopyalanamadi;
                                     f.Save();
@@ -393,7 +307,7 @@ namespace FileManager
                                 }
                                 catch (Exception exc)
                                 {
-                                    Logger.I("Dosya klasore kopyalanamadı:" + exc.Message);
+                                    Logger.I("Dosya klasore kopyalanamadı:" + exc.Message + ",detay" + exc.StackTrace);
                                     f.UploadMsg = "Dosya klasore kopyalanamadı:" + exc.Message;
                                     f.Aktarim = AktarimDurumu.Kopyalanamadi;
                                     f.Save();
@@ -405,13 +319,16 @@ namespace FileManager
                                     Logger.I("Dosya siliniyor:" + f.FullName);
 
                                     File.Delete(f.FullName);
+                                    f.IsDelete = true;
                                 }
                                 catch (IOException io)
                                 {
+                                    f.IsDelete = false;
                                     Logger.E("Dosya silinemedi:" + io.Message);
                                 }
                                 catch (Exception exc)
                                 {
+                                    f.IsDelete = false;
                                     Logger.E("Dosya silinemedi:" + exc.Message);
                                 }
                             }
@@ -422,8 +339,8 @@ namespace FileManager
                                 try
                                 {
                                     OracleParameter[] delParameters = new OracleParameter[2];
-                                    delParameters[0] = new OracleParameter(":RELATION_OBJECT", relationObject);
-                                    delParameters[1] = new OracleParameter(":RELATION_ID", relationId);
+                                    delParameters[0] = new OracleParameter(":RELATION_OBJECT", f.RelationObject);
+                                    delParameters[1] = new OracleParameter(":RELATION_ID", f.RelationId);
 
                                     string delExtra = "";
                                     if (f.Name.IndexOf("UA") != -1)
@@ -452,8 +369,8 @@ namespace FileManager
                             string commandText = "INSERT INTO GNLD_UPLOAD_FILE (UPLOAD_FILE_ID, RELATION_OBJECT, RELATION_ID, SH0RT_FILE_NAME, LONG_FILE_NAME, DOCUMENT_TYPE, DESCRIPTION, CREATE_DATE, CREATE_USER_ID) VALUES (:UPLOAD_FILE_ID, :RELATION_OBJECT, :RELATION_ID, :SH0RT_FILE_NAME, :LONG_FILE_NAME, :DOCUMENT_TYPE, :DESCRIPTION, :CREATE_DATE, :CREATE_USER_ID)";
                             OracleParameter[] oraParameters = new OracleParameter[9];
                             oraParameters[0] = new OracleParameter(":UPLOAD_FILE_ID", uploadFileId);
-                            oraParameters[1] = new OracleParameter(":RELATION_OBJECT", relationObject);
-                            oraParameters[2] = new OracleParameter(":RELATION_ID", relationId);
+                            oraParameters[1] = new OracleParameter(":RELATION_OBJECT", f.RelationObject);
+                            oraParameters[2] = new OracleParameter(":RELATION_ID", f.RelationId);
                             oraParameters[3] = new OracleParameter(":SH0RT_FILE_NAME", f.Name);
                             oraParameters[4] = new OracleParameter(":LONG_FILE_NAME", f.Name);
                             oraParameters[5] = new OracleParameter(":DOCUMENT_TYPE", StaticsVariable.DOCUMENT_TYPE);

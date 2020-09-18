@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileManager;
+using System;
 using System.Collections.Generic;
 using System.Data.OracleClient;
 using System.Linq;
@@ -10,9 +11,16 @@ namespace HidromasOzel
 {
     public class FileParser
     {
-        public List<object> DosyaTuru(string dosyaAd, string constr)
+        public FileParser(string dosyaAd, string constr)
         {
-            List<object> sonuc = new List<object>();
+            this.DoParse(dosyaAd, constr);
+        }
+        public PdfFileType FileType { get; set; } = PdfFileType.Bilinmiyor;
+        public int RelationId { get; set; }
+        public int RelationObject { get; set; }
+
+        private void DoParse(string dosyaAd, string constr)
+        {
             try
             {
                 string[] data = null;
@@ -22,7 +30,7 @@ namespace HidromasOzel
                     comm.CommandType = System.Data.CommandType.Text;
                     data = dosyaAd.Split('_');
 
-                    if (data == null || data.Length == 0) return sonuc;
+                    if (data == null || data.Length == 0) return;
 
                     ora.Open();
 
@@ -35,17 +43,15 @@ namespace HidromasOzel
                         {
                             if (dr != null && dr.Read())
                             {
-                                if (!dr.IsDBNull(0))
-                                    sonuc.Add(dr.GetValue(0));
                                 if (!dr.IsDBNull(1))
-                                    sonuc.Add(dr.GetValue(1));
+                                    this.RelationId = Convert.ToInt32(dr.GetValue(1));
                                 if (!dr.IsDBNull(2))
-                                    sonuc.Add(dr.GetValue(2));
+                                    this.RelationObject = Convert.ToInt32(dr.GetValue(2));
                                 if (!dr.IsDBNull(3))
-                                    sonuc.Add(dr.GetValue(3));
+                                    this.FileType = IntToFileType(Convert.ToInt32(dr.GetValue(3)));
                             }
+                            if (dr != null) dr.Close();
                         }
-                        return sonuc;
                     }
                     #endregion
                     #region -- Ürün Ağacı Dosyası (Dosya Adı Sonunda "UA" veya "OG" yer alır.)
@@ -59,17 +65,15 @@ namespace HidromasOzel
                         {
                             if (dr != null && dr.Read())
                             {
-                                if (!dr.IsDBNull(0))
-                                    sonuc.Add(dr.GetValue(0));
                                 if (!dr.IsDBNull(1))
-                                    sonuc.Add(dr.GetValue(1));
+                                    this.RelationId = Convert.ToInt32(dr.GetValue(1));
                                 if (!dr.IsDBNull(2))
-                                    sonuc.Add(dr.GetValue(2));
+                                    this.RelationObject = Convert.ToInt32(dr.GetValue(2));
                                 if (!dr.IsDBNull(3))
-                                    sonuc.Add(dr.GetValue(3));
+                                    this.FileType = IntToFileType(Convert.ToInt32(dr.GetValue(3)));
                             }
+                            if (dr != null) dr.Close();
                         }
-                        return sonuc;
                     }
                     #endregion
                     #region -- Ürün Rotası Dosyası (Dosya Stok kodu ve Rota Alternatif No ile oluşur.)
@@ -82,18 +86,14 @@ namespace HidromasOzel
                     {
                         if (dr != null && dr.Read())
                         {
-                            if (!dr.IsDBNull(0))
-                                sonuc.Add(dr.GetValue(0));
                             if (!dr.IsDBNull(1))
-                                sonuc.Add(dr.GetValue(1));
+                                this.RelationId = Convert.ToInt32(dr.GetValue(1));
                             if (!dr.IsDBNull(2))
-                                sonuc.Add(dr.GetValue(2));
+                                this.RelationObject = Convert.ToInt32(dr.GetValue(2));
                             if (!dr.IsDBNull(3))
-                                sonuc.Add(dr.GetValue(3));
-
-                            if (dr != null) dr.Close();
-                            return sonuc;
+                                this.FileType = IntToFileType(Convert.ToInt32(dr.GetValue(3)));
                         }
+                        if (dr != null) dr.Close();
                     }
                     #endregion
                     #region -- Ürün Rota Detayı Dosyası (StokKodu_RotaAlternatifNo_OprsSıraNo_OprsKodu şeklinde oluşur.)
@@ -113,18 +113,15 @@ OR M.ITEM_CODE || REPLACE(REPLACE(R.ALTERNATIVE_NO,'-',''),'_','') || '0' || RD.
                     {
                         if (dr != null && dr.Read())
                         {
-                            if (!dr.IsDBNull(0))
-                                sonuc.Add(dr.GetValue(0));
                             if (!dr.IsDBNull(1))
-                                sonuc.Add(dr.GetValue(1));
+                                this.RelationId = Convert.ToInt32(dr.GetValue(1));
                             if (!dr.IsDBNull(2))
-                                sonuc.Add(dr.GetValue(2));
+                                this.RelationObject = Convert.ToInt32(dr.GetValue(2));
                             if (!dr.IsDBNull(3))
-                                sonuc.Add(dr.GetValue(3));
-
-                            if (dr != null) dr.Close();
-                            return sonuc;
+                                this.FileType = IntToFileType(Convert.ToInt32(dr.GetValue(3)));
                         }
+                        if (dr != null) dr.Close();
+
                     }
                     #endregion
                     #region -- Stok Dosyası (Dosya Stok Kodu ile oluşur.)
@@ -138,18 +135,14 @@ WHERE B.BRANCH_ID = 1010 AND B.CO_ID = 191 AND M.ITEM_CODE = :dosyaadi";
                     {
                         if (dr != null && dr.Read())
                         {
-                            if (!dr.IsDBNull(0))
-                                sonuc.Add(dr.GetValue(0));
                             if (!dr.IsDBNull(1))
-                                sonuc.Add(dr.GetValue(1));
+                                this.RelationId = Convert.ToInt32(dr.GetValue(1));
                             if (!dr.IsDBNull(2))
-                                sonuc.Add(dr.GetValue(2));
+                                this.RelationObject = Convert.ToInt32(dr.GetValue(2));
                             if (!dr.IsDBNull(3))
-                                sonuc.Add(dr.GetValue(3));
-
-                            if (dr != null) dr.Close();
-                            return sonuc;
+                                this.FileType = IntToFileType(Convert.ToInt32(dr.GetValue(3)));
                         }
+                        if (dr != null) dr.Close();
                     }
                     #endregion
                 }
@@ -163,9 +156,36 @@ WHERE B.BRANCH_ID = 1010 AND B.CO_ID = 191 AND M.ITEM_CODE = :dosyaadi";
             }
             finally
             {
-                sonuc.TrimExcess();
             }
-            return sonuc;
         }
+
+        private PdfFileType IntToFileType(int value)
+        {
+            if (value == 0)
+            {
+                return PdfFileType.Bilinmiyor;
+            }
+            else if (value == 1)
+            {
+                return PdfFileType.UrunAgacKod;
+            }
+            else if (value == 2)
+            {
+                return PdfFileType.RotaKod;
+            }
+            else if (value == 3)
+            {
+                return PdfFileType.IstasyonKod;
+            }
+            else if (value == 4)
+            {
+                return PdfFileType.StokKod;
+            }
+            else
+            {
+                return PdfFileType.Diger;
+            }
+        }
+
     }
 }

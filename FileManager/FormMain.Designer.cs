@@ -60,8 +60,9 @@
             this.imgstatu = new System.Windows.Forms.ImageList(this.components);
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.btnAyarlar = new System.Windows.Forms.ToolStripButton();
-            this.timerJop = new System.Windows.Forms.Timer(this.components);
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
+            this.timerJop = new System.Windows.Forms.Timer(this.components);
+            this.columnHeaderDelete = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
             this.pnlTrace.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -187,6 +188,7 @@
             this.chSira,
             this.chAdi,
             this.chBoyut,
+            this.columnHeaderDelete,
             this.chTarih,
             this.chDurum,
             this.chMail});
@@ -223,16 +225,19 @@
             // 
             // chTarih
             // 
+            this.chTarih.DisplayIndex = 3;
             this.chTarih.Text = "Tarih";
             this.chTarih.Width = 199;
             // 
             // chDurum
             // 
+            this.chDurum.DisplayIndex = 4;
             this.chDurum.Text = "Aktarım";
             this.chDurum.Width = 400;
             // 
             // chMail
             // 
+            this.chMail.DisplayIndex = 5;
             this.chMail.Text = "Mail";
             this.chMail.Width = 210;
             // 
@@ -330,20 +335,26 @@
             this.btnAyarlar.Text = "Ayarlar";
             this.btnAyarlar.Click += new System.EventHandler(this.btnAyarlar_Click);
             // 
-            // timerJop
-            // 
-            this.timerJop.Interval = 60000;
-            this.timerJop.Tick += new System.EventHandler(this.timerJop_Tick);
-            // 
             // toolStripButton3
             // 
             this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton3.Enabled = false;
             this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
             this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton3.Name = "toolStripButton3";
             this.toolStripButton3.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton3.Text = "Kodu Göster";
             this.toolStripButton3.Click += new System.EventHandler(this.toolStripButton3_Click);
+            // 
+            // timerJop
+            // 
+            this.timerJop.Interval = 60000;
+            this.timerJop.Tick += new System.EventHandler(this.timerJop_Tick);
+            // 
+            // columnHeaderDelete
+            // 
+            this.columnHeaderDelete.Text = "Silindi";
+            this.columnHeaderDelete.Width = 50;
             // 
             // FormMain
             // 
@@ -407,5 +418,6 @@
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripButton toolStripButton3;
+        private System.Windows.Forms.ColumnHeader columnHeaderDelete;
     }
 }
