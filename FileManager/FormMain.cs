@@ -274,6 +274,10 @@ namespace FileManager
                                     //if (size > 0)
                                     //    ftp.deleteRemoteFile(f.Name);
 
+                                    var fx = new FileInfo(f.FullName);
+                                    fx.Attributes = FileAttributes.Normal;
+                                    fx.IsReadOnly = false;
+
                                     if (!ftp.upload(f.FullName))
                                     {
                                         Logger.I("Dosya klasore kopyalanamadı:" + f.FullName);
