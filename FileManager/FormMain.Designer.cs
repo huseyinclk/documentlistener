@@ -46,6 +46,7 @@
             this.chSira = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chAdi = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chBoyut = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderDelete = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chTarih = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chDurum = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.chMail = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -62,7 +63,7 @@
             this.btnAyarlar = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.timerJop = new System.Windows.Forms.Timer(this.components);
-            this.columnHeaderDelete = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.btnGonder = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
             this.pnlTrace.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -223,21 +224,23 @@
             this.chBoyut.Text = "Boyut";
             this.chBoyut.Width = 145;
             // 
+            // columnHeaderDelete
+            // 
+            this.columnHeaderDelete.Text = "Silindi";
+            this.columnHeaderDelete.Width = 50;
+            // 
             // chTarih
             // 
-            this.chTarih.DisplayIndex = 3;
             this.chTarih.Text = "Tarih";
             this.chTarih.Width = 199;
             // 
             // chDurum
             // 
-            this.chDurum.DisplayIndex = 4;
             this.chDurum.Text = "Aktarım";
             this.chDurum.Width = 400;
             // 
             // chMail
             // 
-            this.chMail.DisplayIndex = 5;
             this.chMail.Text = "Mail";
             this.chMail.Width = 210;
             // 
@@ -248,11 +251,12 @@
             this.btnDel,
             this.btnUpd,
             this.btnSend,
+            this.btnGonder,
             this.bntOpenTrace,
             this.btnLogClear,
             this.btnSettings});
             this.mnuList.Name = "mnuList";
-            this.mnuList.Size = new System.Drawing.Size(159, 158);
+            this.mnuList.Size = new System.Drawing.Size(159, 202);
             this.mnuList.Opening += new System.ComponentModel.CancelEventHandler(this.mnuList_Opening);
             // 
             // yenileToolStripMenuItem
@@ -351,10 +355,12 @@
             this.timerJop.Interval = 60000;
             this.timerJop.Tick += new System.EventHandler(this.timerJop_Tick);
             // 
-            // columnHeaderDelete
+            // btnGonder
             // 
-            this.columnHeaderDelete.Text = "Silindi";
-            this.columnHeaderDelete.Width = 50;
+            this.btnGonder.Name = "btnGonder";
+            this.btnGonder.Size = new System.Drawing.Size(158, 22);
+            this.btnGonder.Text = "Şimdi Gönder";
+            this.btnGonder.Click += new System.EventHandler(this.btnGonder_Click);
             // 
             // FormMain
             // 
@@ -419,5 +425,6 @@
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripButton toolStripButton3;
         private System.Windows.Forms.ColumnHeader columnHeaderDelete;
+        private System.Windows.Forms.ToolStripMenuItem btnGonder;
     }
 }

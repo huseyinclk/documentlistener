@@ -161,6 +161,7 @@ namespace FileManager
         private void timerJop_Tick(object sender, EventArgs e)
         {
             timerJop.Enabled = false;
+            btnGonder.Enabled = false;
 
             Dosyalar();
 
@@ -434,6 +435,7 @@ namespace FileManager
                 }
             }
 
+            btnGonder.Enabled = true;
             timerJop.Enabled = true;
         }
 
@@ -686,6 +688,12 @@ namespace FileManager
         {
             FormKod kd = new FormKod();
             kd.ShowDialog();
+        }
+
+        private void btnGonder_Click(object sender, EventArgs e)
+        {
+            timerJop.Enabled = false;
+            timerJop_Tick(timerJop, EventArgs.Empty);
         }
     }
 }

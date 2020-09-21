@@ -44,7 +44,7 @@ namespace FileManager
         {
             Connect();
 
-            Logger.I(commandText);
+            Logger.I(string.Concat(commandText, "\tPrm:", ParametersToString(parameters)));
 
             comm.Parameters.Clear();
             comm.CommandText = commandText;
@@ -58,11 +58,25 @@ namespace FileManager
             return comm.ExecuteNonQuery() > 0;
         }
 
+        public static string ParametersToString(IDataParameter[] parameters)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (parameters != null && parameters.Length > 0)
+            {
+                foreach (IDataParameter prm in parameters) sb.AppendFormat("\tName:{0},Value:{1}\t", prm.ParameterName, prm.Value);
+            }
+            else
+            {
+                sb.Append("null");
+            }
+            return sb.ToString();
+        }
+
         public IDataReader ExecReader(string commandText, IDataParameter[] parameters)
         {
             Connect();
 
-            Logger.I(commandText);
+            Logger.I(string.Concat(commandText, "\tPrm:", ParametersToString(parameters)));
 
             comm.Parameters.Clear();
             comm.CommandText = commandText;
@@ -80,7 +94,7 @@ namespace FileManager
         {
             Connect();
 
-            Logger.I(commandText);
+            Logger.I(string.Concat(commandText, "\tPrm:", ParametersToString(parameters)));
 
             comm.Parameters.Clear();
             comm.CommandText = commandText;
