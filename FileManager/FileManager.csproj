@@ -104,6 +104,7 @@
   <ItemGroup>
     <Compile Include="AktarimDurumu.cs" />
     <Compile Include="AppSettingHelper.cs" />
+    <Compile Include="ExtensionMethods.cs" />
     <Compile Include="FormKod.cs">
       <SubType>Form</SubType>
     </Compile>

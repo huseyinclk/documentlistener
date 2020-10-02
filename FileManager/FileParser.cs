@@ -38,7 +38,7 @@ namespace HidromasOzel
                     if (dosyaAd.ToUpper().IndexOf("UGTL") != -1)
                     {
                         comm.CommandText = "SELECT W.WSTATION_ID, 249 as releationid, 476273311 as RelationObject, 3 as dosya FROM UYUMSOFT.PRDD_WSTATION W WHERE W.BRANCH_ID = 1010 AND W.CO_ID = 191 AND W.WSTATION_CODE = :istasyonkod";
-                        comm.Parameters.AddWithValue(":istasyonkod", data[0]);
+                        comm.Parameters.AddWithValue(":istasyonkod", data[0].TrimAll());
 
                         Logger.I(string.Concat(comm.CommandText, "Prm:", ":istasyonkod", data[0]));
 
@@ -64,7 +64,7 @@ namespace HidromasOzel
 
                         comm.CommandText = "SELECT U.BOM_M_ID, 56348 as Releationid, -2089279086 as OG_RelationObject, 1 as dosya FROM UYUMSOFT.INVD_BRANCH_ITEM B INNER JOIN UYUMSOFT.INVD_ITEM M ON B.ITEM_ID = M.ITEM_ID INNER JOIN UYUMSOFT.PRDD_BOM_M U ON B.ITEM_ID = U.ITEM_ID WHERE B.BRANCH_ID = 1010 AND B.CO_ID = 191 AND M.ITEM_CODE = :stokkod AND M.ITEM_CODE || REPLACE(REPLACE(U.ALTERNATIVE_NO,'-',''),'_','') = REPLACE(REPLACE(:dosyaadi,'-',''),'_','')";
                         comm.Parameters.AddWithValue(":stokkod", data[0]);
-                        comm.Parameters.AddWithValue(":dosyaadi", dosyaAd.Replace("UA", "").Replace("OG", ""));
+                        comm.Parameters.AddWithValue(":dosyaadi", dosyaAd.TrimAll().Replace("UA", "").Replace("OG", ""));
 
                         Logger.I(string.Concat(comm.CommandText, "\tPrm:", ":stokkod", data[0], ":dosyaadi", dosyaAd.Replace("UA", "").Replace("OG", "")));
 
@@ -89,9 +89,9 @@ namespace HidromasOzel
                     comm.CommandType = System.Data.CommandType.Text;
                     comm.CommandText = "SELECT R.PRODUCT_ROUTE_M_ID, 2588 as releationid, 1098530797 as RelationObject, 2 as dosya FROM UYUMSOFT.INVD_BRANCH_ITEM B INNER JOIN UYUMSOFT.INVD_ITEM M ON B.ITEM_ID = M.ITEM_ID INNER JOIN UYUMSOFT.PRDD_PRODUCT_ROUTE_M R ON B.ITEM_ID = R.ITEM_ID WHERE B.BRANCH_ID = 1010 AND B.CO_ID = 191 AND M.ITEM_CODE = :stokkod AND M.ITEM_CODE || REPLACE(REPLACE(R.ALTERNATIVE_NO,'-',''),'_','') = REPLACE(REPLACE(:dosyaadi,'-',''),'_','')";
                     comm.Parameters.AddWithValue(":stokkod", data[0]);
-                    comm.Parameters.AddWithValue(":dosyaadi", dosyaAd);
+                    comm.Parameters.AddWithValue(":dosyaadi", dosyaAd.TrimAll());
 
-                    Logger.I(string.Concat(comm.CommandText, "\tPrm:", ":stokkod", data[0], ":dosyaadi", dosyaAd));
+                    Logger.I(string.Concat(comm.CommandText, "\tPrm:", ":stokkod", data[0].TrimAll(), ":dosyaadi", dosyaAd.TrimAll()));
 
                     using (OracleDataReader dr = comm.ExecuteReader())
                     {
@@ -120,7 +120,7 @@ INNER JOIN UYUMSOFT.PRDD_OPERATION        O ON RD.OPERATION_ID      = O.OPERATIO
 WHERE B.BRANCH_ID = 1010 AND B.CO_ID = 191 AND M.ITEM_CODE = :stokkod AND (M.ITEM_CODE || REPLACE(REPLACE(R.ALTERNATIVE_NO,'-',''),'_','') || RD.OPERATION_SEQUENTIAL || O.OPERATION_CODE = REPLACE(REPLACE(:dosyaadi,'-',''),'_','') 
 OR M.ITEM_CODE || REPLACE(REPLACE(R.ALTERNATIVE_NO,'-',''),'_','') || '0' || RD.OPERATION_SEQUENTIAL || O.OPERATION_CODE = REPLACE(REPLACE(:dosyaadi,'-',''),'_',''))";
                     comm.Parameters.AddWithValue(":stokkod", data[0]);
-                    comm.Parameters.AddWithValue(":dosyaadi", dosyaAd);
+                    comm.Parameters.AddWithValue(":dosyaadi", dosyaAd.TrimAll());
 
                     Logger.I(string.Concat(comm.CommandText, "\tPrm:", ":stokkod", data[0], ":dosyaadi", dosyaAd));
 
@@ -145,7 +145,7 @@ OR M.ITEM_CODE || REPLACE(REPLACE(R.ALTERNATIVE_NO,'-',''),'_','') || '0' || RD.
                     comm.CommandText = @"SELECT M.ITEM_ID, 69076 as releationid, 1690415898 as RelationObject, 4 as dosya
 FROM UYUMSOFT.INVD_BRANCH_ITEM B INNER JOIN UYUMSOFT.INVD_ITEM M ON B.ITEM_ID = M.ITEM_ID
 WHERE B.BRANCH_ID = 1010 AND B.CO_ID = 191 AND M.ITEM_CODE = :dosyaadi";
-                    comm.Parameters.AddWithValue(":dosyaadi", dosyaAd);
+                    comm.Parameters.AddWithValue(":dosyaadi", dosyaAd.TrimAll());
 
                     Logger.I(string.Concat(comm.CommandText, "\tPrm:", ":stokkod", data[0], ":dosyaadi", dosyaAd));
 
